@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/noorulhaq/devops2nodejs:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/noorulhaq/devops2nodejs:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: devops2nodejs
+        chartPath: charts/devops2nodejs
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/noorulhaq/devops2nodejs'
+          image.tag: '{{.DIGEST_HEX}}'
